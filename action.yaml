@@ -1,0 +1,77 @@
+name: Dry-run Renovate
+description: 'Dry-run Renovate and output to summary'
+
+inputs:
+  cache:
+    description: 'if `true`, cache ~/.npm'
+    required: false
+    default: "true"
+  log-level:
+    description: 'Renovate log level [trace|debug|info|warn|error|fatal]'
+    required: false
+    default: "debug"
+  log-format:
+    description: 'Renovate log format [text|json]'
+    required: false
+    default: "text"
+  config-file:
+    description: 'Renovate config file'
+    required: true
+  save-log:
+    description: 'if `true`, save log file'
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  env:
+      DRY_RUN_LOG_FILE_NAME: renovate-dry-run.log
+  steps:
+    - uses: actions/checkout@v3
+
+    - name: Get latest renovate major version
+      if: inputs.cache == 'true'
+      id: version
+      run: |
+        echo "renovate=$(npm show renovate version --no-update-notifier | cut -d . -f 1)" >> $GITHUB_OUTPUT
+
+    - uses: actions/cache@v3
+      if: inputs.cache == 'true'
+      with:
+        path: ~/.npm
+        key: npm-renovate-major-v${{ steps.version.outputs.renovate }}
+
+    - name: Dry run renovate
+      env:
+        RENOVATE_USERNAME: renovate[bot]
+        RENOVATE_GIT_AUTHOR: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+        RENOVATE_TOKEN: ${{ github.token }}
+        LOG_LEVEL: ${{ inputs.log-level }}
+        LOG_FORMAT: ${{ inputs.log-format }}
+        RENOVATE_CONFIG_FILE: ${{ inputs.config-file }}
+      run: |
+        npx renovate --schedule= --require-config=ignored --dry-run ${{ github.repository }} \
+          > ${{ runner.temp }}/${{ env.DRY_RUN_LOG_FILE_NAME }}
+
+    - name: Output log
+      if: always()
+      run: |
+        # output actions logs
+        cat ${{ runner.temp }}/${{ env.DRY_RUN_LOG_FILE_NAME }}
+        
+        # output actions step summary
+        echo "# Renovate dry run log" >> $GITHUB_STEP_SUMMARY
+        echo "<details>" >> $GITHUB_STEP_SUMMARY
+        echo "<summary>detail</summary>" >> $GITHUB_STEP_SUMMARY
+        echo '```json' >> $GITHUB_STEP_SUMMARY
+        cat ${{ runner.temp }}/${{ env.DRY_RUN_LOG_FILE_NAME }} >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+    - name: Save log
+      if: always() && inputs.save-log == 'true'
+      uses: actions/upload-artifact@v3
+      with:
+        name: renovate-dry-run-log
+        path: |
+          ${{ runner.temp }}/${{ env.DRY_RUN_LOG_FILE_NAME }}.log
