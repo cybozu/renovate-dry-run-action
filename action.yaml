@@ -23,23 +23,23 @@ inputs:
     default: "false"
 
 runs:
-  using: composite
-  env:
-      DRY_RUN_LOG_FILE_NAME: renovate-dry-run.log
+  using: "composite"
   steps:
     - uses: actions/checkout@v3
 
-    - name: Get latest renovate major version
-      if: inputs.cache == 'true'
-      id: version
+    - name: Setup
+      id: setup
+      shell: bash
       run: |
-        echo "renovate=$(npm show renovate version --no-update-notifier | cut -d . -f 1)" >> $GITHUB_OUTPUT
+        # Get latest renovate major version
+        echo "renovate-version=$(npm show renovate version --no-update-notifier | cut -d . -f 1)" >> $GITHUB_OUTPUT
+        echo "renovate-log=${{ runner.temp }}/renovate-dry-run.log" >> $GITHUB_OUTPUT
 
     - uses: actions/cache@v3
       if: inputs.cache == 'true'
       with:
         path: ~/.npm
-        key: npm-renovate-major-v${{ steps.version.outputs.renovate }}
+        key: npm-renovate-major-v${{ steps.setup.outputs.renovate-version }}
 
     - name: Dry run renovate
       env:
@@ -49,23 +49,26 @@ runs:
         LOG_LEVEL: ${{ inputs.log-level }}
         LOG_FORMAT: ${{ inputs.log-format }}
         RENOVATE_CONFIG_FILE: ${{ inputs.config-file }}
+        DRY_RUN_LOG_FILE_NAME: renovate-dry-run.log
+      shell: bash
       run: |
         npx renovate --schedule= --require-config=ignored --dry-run ${{ github.repository }} \
-          > ${{ runner.temp }}/${{ env.DRY_RUN_LOG_FILE_NAME }}
+          > ${{ steps.setup.outputs.renovate-log }}
+        cat ${{ steps.setup.outputs.renovate-log }}
 
-    - name: Output log
+    - name: Output to step summary
       if: always()
+      shell: bash
       run: |
-        # output actions logs
-        cat ${{ runner.temp }}/${{ env.DRY_RUN_LOG_FILE_NAME }}
-        
-        # output actions step summary
+        # output to step summary
         echo "# Renovate dry run log" >> $GITHUB_STEP_SUMMARY
         echo "<details>" >> $GITHUB_STEP_SUMMARY
         echo "<summary>detail</summary>" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
         echo '```json' >> $GITHUB_STEP_SUMMARY
-        cat ${{ runner.temp }}/${{ env.DRY_RUN_LOG_FILE_NAME }} >> $GITHUB_STEP_SUMMARY
+        cat ${{ steps.setup.outputs.renovate-log }} >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
         echo "</details>" >> $GITHUB_STEP_SUMMARY
 
     - name: Save log
@@ -74,4 +77,4 @@ runs:
       with:
         name: renovate-dry-run-log
         path: |
-          ${{ runner.temp }}/${{ env.DRY_RUN_LOG_FILE_NAME }}.log
+          ${{ steps.setup.outputs.renovate-log }}
