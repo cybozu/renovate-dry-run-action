@@ -14,3 +14,10 @@ steps:
     with:
       config-file: renovate.json
 ```
+
+
+## Release
+1. Open [Tagging and Release action page](https://github.com/korosuke613/renovate-dry-run-action/actions/workflows/release.yaml).
+2. Click `Run workflow`.
+3. Input version.
+4. Click `Run workflow`.
