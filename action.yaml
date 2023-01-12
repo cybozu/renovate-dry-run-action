@@ -53,8 +53,7 @@ runs:
       shell: bash
       run: |
         npx renovate --schedule= --require-config=ignored --dry-run ${{ github.repository }} \
-          > ${{ steps.setup.outputs.renovate-log }}
-        cat ${{ steps.setup.outputs.renovate-log }}
+          | tee ${{ steps.setup.outputs.renovate-log }}
 
     - name: Output to step summary
       if: always()
