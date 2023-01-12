@@ -41,8 +41,10 @@ runs:
 
     - name: Dry run renovate
       env:
-        RENOVATE_USERNAME: renovate[bot]
-        RENOVATE_GIT_AUTHOR: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+        # Use `GitHub Action` user to make it explicit that the execution is by github actions.
+        # ref: https://github.com/actions/checkout/issues/13
+        RENOVATE_USERNAME: GitHub Action
+        RENOVATE_GIT_AUTHOR: GitHub Action <action@github.com>
         RENOVATE_TOKEN: ${{ github.token }}
         LOG_LEVEL: ${{ inputs.log-level }}
         LOG_FORMAT: ${{ inputs.log-format }}
