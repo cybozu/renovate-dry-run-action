@@ -29,30 +29,60 @@ runs:
       id: setup
       shell: bash
       run: |
-        # Get latest renovate major version
+        # Get the major version number of Renovate to be used for the cache key.
         echo "renovate-version=$(npm show renovate version --no-update-notifier | cut -d . -f 1)" >> $GITHUB_OUTPUT
+        
+        # Create a path to save the Renovate log.
         echo "renovate-log=${{ runner.temp }}/renovate-dry-run.log" >> $GITHUB_OUTPUT
 
     - uses: actions/cache@v3
       if: inputs.cache == 'true'
       with:
         path: ~/.npm
+        # Cache Renovate and its dependencies,
+        #   using the major version of Renovate as the cache key because Renovate is updated frequently.
         key: npm-renovate-major-v${{ steps.setup.outputs.renovate-version }}
 
-    - name: Dry run renovate
+    - name: Dry-run Renovate
       env:
+        # By setting `RENOVATE_USERNAME` and `RENOVATE_GIT_AUTHOR`,
+        #   `GITHUB_TOKEN` can be used for the secret requested by Renovate.
+        #   ref: https://zenn.dev/azrsh/articles/renovate-dry-run-ci#%E5%AE%9F%E8%A3%85-2
         # Use `GitHub Action` user to make it explicit that the execution is by github actions.
-        # ref: https://github.com/actions/checkout/issues/13
+        #   ref: https://github.com/actions/checkout/issues/13
         RENOVATE_USERNAME: GitHub Action
         RENOVATE_GIT_AUTHOR: GitHub Action <action@github.com>
         RENOVATE_TOKEN: ${{ github.token }}
+
+        # Specify the log level for Renovate.
+        #   ref: https://docs.renovatebot.com/examples/self-hosting/#about-the-log-level-numbers
+        # Renovate supports specifying log levels in environment variables.
+        #   ref: https://github.com/renovatebot/renovate/issues/8291
         LOG_LEVEL: ${{ inputs.log-level }}
+
+        # Renovate outputs human readable logs by default;
+        #   by specifying LOG_FORMAT=json, it outputs logs in json format.
+        #   ref: https://docs.renovatebot.com/examples/self-hosting/#logging
+        # Renovate supports specifying log format in environment variables.
+        #   ref: https://github.com/renovatebot/renovate/blob/3b72d500983036ec76d33e70a1a177f800321d78/lib/logger/index.ts#L31
         LOG_FORMAT: ${{ inputs.log-format }}
+
+        # Specify the config file for Renovate.
+        #   ref: https://github.com/renovatebot/renovate/blob/3b72d500983036ec76d33e70a1a177f800321d78/docs/development/configuration.md?plain=1#LL20-L21
         RENOVATE_CONFIG_FILE: ${{ inputs.config-file }}
-        DRY_RUN_LOG_FILE_NAME: renovate-dry-run.log
+
       shell: bash
+
+      # Description of options
+      # - `--schedule`               : Set to empty to ignore schedule settings.
+      # - `--require-config=ignored` : Set to ignore the default branch config of the remote repository.
+      #                                Without it, the default branch config of the remote repository will be used.
+      # - `--dry-run`                : Enable dry-run to avoid creating PRs, automerge, and updating the Dependency Dashboard.
       run: |
-        npx renovate --schedule= --require-config=ignored --dry-run ${{ github.repository }} \
+        npx renovate \
+          --schedule= \
+          --require-config=ignored \
+          --dry-run ${{ github.repository }} \
           | tee ${{ steps.setup.outputs.renovate-log }}
 
     - name: Output to step summary
