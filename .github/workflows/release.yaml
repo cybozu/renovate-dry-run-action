@@ -24,7 +24,8 @@ on:
 
 jobs:
   call:
-    uses: korosuke613/actions/.github/workflows/tagging.yaml@v1
+    # https://github.com/korosuke613/actions
+    uses: korosuke613/actions/.github/workflows/tagging.yaml@ac3df9b1bc31f162ed0445087b925eddca39ab05
     with:
       version: ${{ inputs.version }}
       isMajorVersion: ${{ inputs.isMajorVersion }}
