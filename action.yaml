@@ -2,6 +2,9 @@ name: Dry-run Renovate
 description: 'Dry-run Renovate and output to summary'
 
 inputs:
+  config-file:
+    description: 'Renovate config file'
+    required: true
   cache:
     description: 'if `true`, cache ~/.npm'
     required: false
@@ -14,9 +17,6 @@ inputs:
     description: 'Renovate log format [text|json]'
     required: false
     default: "text"
-  config-file:
-    description: 'Renovate config file'
-    required: true
   save-log:
     description: 'if `true`, save log file'
     required: false
