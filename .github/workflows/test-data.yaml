@@ -1,0 +1,42 @@
+# This workflow is used to check the operation of pull request generation by dry-run Renovate.
+# It will not be actually executed.
+name: Test Data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  major:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+  minor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.2.0
+
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.1
+
+  ref:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
