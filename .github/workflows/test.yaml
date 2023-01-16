@@ -46,3 +46,13 @@ jobs:
         with:
           config-file: renovate.json
           save-log: true
+
+  detail-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          config-file: renovate.json
+          log-level: info  # To reduce page occupancy.
+          detail-summary: false

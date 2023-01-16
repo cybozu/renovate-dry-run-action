@@ -2,6 +2,9 @@ name: Dry-run Renovate
 description: 'Dry-run Renovate and output to summary'
 
 inputs:
+  config-file:
+    description: 'Renovate config file'
+    required: true
   cache:
     description: 'if `true`, cache ~/.npm'
     required: false
@@ -14,13 +17,14 @@ inputs:
     description: 'Renovate log format [text|json]'
     required: false
     default: "text"
-  config-file:
-    description: 'Renovate config file'
-    required: true
   save-log:
     description: 'if `true`, save log file'
     required: false
     default: "false"
+  detail-summary:
+    description: 'if `true`, enclose the output log to the summary in a detail tag.'
+    required: false
+    default: "true"
 
 runs:
   using: "composite"
@@ -34,6 +38,9 @@ runs:
         
         # Create a path to save the Renovate log.
         echo "renovate-log=${{ runner.temp }}/renovate-dry-run.log" >> $GITHUB_OUTPUT
+        
+        # Create a path to save the Renovate log.
+        echo "summary=${{ runner.temp }}/summary.md" >> $GITHUB_OUTPUT
 
     - uses: actions/cache@v3
       if: inputs.cache == 'true'
@@ -85,21 +92,50 @@ runs:
           --dry-run ${{ github.repository }} \
           | tee ${{ steps.setup.outputs.renovate-log }}
 
+    # Create a step summary for multiple steps,
+    #   because the insertion of the `details` tag is controlled by `input`.
+    # Use `always()` to an output log even when Renovate fails.
+    # Write the summary to a temporary file first without directly outputting to `$GITHUB_STEP_SUMMARY`,
+    #   because the `details` tag will not work if the steps are separated.
+    #   see: https://github.com/community/community/discussions/44185
+    - name: Create step summary [title]
+      if: always()
+      shell: bash
+      run: |
+        echo "# Renovate dry run log" > ${{ steps.setup.outputs.summary }}
+
+    - name: Create step summary [details start tag]
+      if: always() && inputs.detail-summary == 'true'
+      shell: bash
+      run: |
+        echo "<details>" >> ${{ steps.setup.outputs.summary }}
+        echo "<summary>detail</summary>" >> ${{ steps.setup.outputs.summary }}
+
+    - name: Create step summary [body]
+      if: always()
+      shell: bash
+      run: |
+        # The top and bottom of the codeblock must be blank lines, so sandwich the codeblock with line breaks.
+        echo "" >> ${{ steps.setup.outputs.summary }}
+        echo '```json' >> ${{ steps.setup.outputs.summary }}
+        cat ${{ steps.setup.outputs.renovate-log }} >> ${{ steps.setup.outputs.summary }}
+        echo '```' >> ${{ steps.setup.outputs.summary }}
+        echo "" >> ${{ steps.setup.outputs.summary }}
+
+    - name: Create step summary [details end tag]
+      if: always() && inputs.detail-summary == 'true'
+      shell: bash
+      run: |
+        echo "</details>" >> ${{ steps.setup.outputs.summary }}
+
     - name: Output to step summary
       if: always()
       shell: bash
       run: |
-        # output to step summary
-        echo "# Renovate dry run log" >> $GITHUB_STEP_SUMMARY
-        echo "<details>" >> $GITHUB_STEP_SUMMARY
-        echo "<summary>detail</summary>" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo '```json' >> $GITHUB_STEP_SUMMARY
-        cat ${{ steps.setup.outputs.renovate-log }} >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "</details>" >> $GITHUB_STEP_SUMMARY
+        cat ${{ steps.setup.outputs.summary }} >> $GITHUB_STEP_SUMMARY
 
+    # Save the Renovate log to an artifact.
+    # Use `always()` to a save log even when Renovate fails.
     - name: Save log
       if: always() && inputs.save-log == 'true'
       uses: actions/upload-artifact@v3
