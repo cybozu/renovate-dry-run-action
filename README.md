@@ -8,11 +8,17 @@ Dry run Renovate and print logs for GitHub Actions.
 See [action.yaml](action.yaml)
 
 ```yaml
-steps:
-  - uses: actions/checkout@v3
-  - uses: korosuke613/renovate-dry-run-action@v1
-    with:
-      config-file: renovate.json
+jobs:
+  renovate-dry-run:
+    permissions:
+      contents: read  # required by actions/checkout
+      pull_request: read  # required by renovate, because renovate to read pull_request.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: korosuke613/renovate-dry-run-action@v1
+        with:
+          config-file: renovate.json
 ```
 
 

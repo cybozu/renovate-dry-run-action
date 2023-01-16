@@ -1,6 +1,11 @@
 name: Release
 run-name: Release ${{ inputs.version }}
 
+permissions:
+  # required by tag push and release creation
+  # https://docs.github.com/en/rest/overview/permissions-required-for-github-apps?apiVersion=2022-11-28#contents
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
