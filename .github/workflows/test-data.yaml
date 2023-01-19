@@ -1,5 +1,5 @@
-# This workflow is used to check the operation of pull request generation by dry-run Renovate.
-# It will not be actually executed.
+# This workflow is used to test the operation of the pull request generation by dry-run Renovate.
+# It is not actually executed.
 name: Test Data
 
 on:
