@@ -1,5 +1,5 @@
 # renovate-dry-run-action
-Dry run Renovate and print logs for GitHub Actions.
+Dry-run Renovate and print logs for GitHub Actions.
 
 ![](preview.png)
 
