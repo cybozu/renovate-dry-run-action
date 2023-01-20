@@ -15,18 +15,41 @@ on:
         required: true
       isMajorVersion:
         type: boolean
-        description: If true, it will update the MAJOR version of the tag.
+        description: If true, it will update the major version of the tag.
         default: true
       isRelease:
         type: boolean
-        description: If true, it will create a GitHub Release
+        description: If true, it will create a GitHub Release.
         default: true
 
 jobs:
-  call:
-    # https://github.com/korosuke613/actions
-    uses: korosuke613/actions/.github/workflows/tagging.yaml@ac3df9b1bc31f162ed0445087b925eddca39ab05
-    with:
-      version: ${{ inputs.version }}
-      isMajorVersion: ${{ inputs.isMajorVersion }}
-      isRelease: ${{ inputs.isRelease }}
+  tagging-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          git tag ${{ inputs.version }}
+          git push --tags origin ${{ inputs.version }}
+
+  tagging-major-version-only:
+    # Make it available by specifying a major version, such as `renovate-dry-run-action@v1`.
+    runs-on: ubuntu-latest
+    if: ${{ inputs.isMajorVersion }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          MAJOR_VERSION=$(echo ${{ inputs.version }} | awk -F'.' '{print $1}')
+          echo $MAJOR_VERSION
+          git tag --force $MAJOR_VERSION
+          git push --force --tags origin $MAJOR_VERSION
+
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.isRelease }}
+    needs: tagging-version
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          gh release create ${{ inputs.version }} --generate-notes
