@@ -1,6 +1,23 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
+  extends: ["config:base"],
+
+  // Disable the ignorePaths included in `config:base`, as they override it.
+  // ref: https://github.com/renovatebot/renovate/discussions/14793
+  ignorePresets: [":ignoreModulesAndTests"],
+
+  ignorePaths: [
+    // Paths included in `:ignoreModulesAndTests`.
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/examples/**",
+    "**/__tests__/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/__fixtures__/**",
+
+    // developer defined
+    ".github/workflows/test-data.yaml"  // Exclude because it is test data for the action.
   ]
 }
