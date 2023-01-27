@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          config-file: renovate.json
+          config-file: renovate-test-data.json5
 
   no-cache:
     runs-on: ubuntu-latest
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          config-file: renovate.json
+          config-file: renovate-test-data.json5
           cache: false
 
   log-level:
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          config-file: renovate.json
+          config-file: renovate-test-data.json5
           log-level: info
 
   log-format:
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          config-file: renovate.json
+          config-file: renovate-test-data.json5
           log-format: json
 
   save-log:
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          config-file: renovate.json
+          config-file: renovate-test-data.json5
           save-log: true
 
   detail-summary:
@@ -59,6 +59,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          config-file: renovate.json
+          config-file: renovate-test-data.json5
           log-level: info  # To reduce page occupancy.
           detail-summary: false
