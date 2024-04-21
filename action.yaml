@@ -138,7 +138,7 @@ runs:
     # Use `always()` to save a log even if Renovate fails.
     - name: Save log
       if: always() && inputs.save-log == 'true'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: renovate-dry-run-log
         path: |
