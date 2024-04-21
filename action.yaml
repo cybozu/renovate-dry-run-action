@@ -42,7 +42,7 @@ runs:
         # Create a path to save a action summary.
         echo "summary=${{ runner.temp }}/summary.md" >> $GITHUB_OUTPUT
 
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       if: inputs.cache == 'true'
       with:
         path: ~/.npm
