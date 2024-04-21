@@ -15,7 +15,7 @@ jobs:
       pull-requests: read  # required by renovate, because renovate to read pull request.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: cybozu/renovate-dry-run-action@v1
         with:
           config-file: renovate.json
