@@ -27,3 +27,7 @@ jobs:
 2. Click `Run workflow`.
 3. Input version.
 4. Click `Run workflow`.
+5. Open Releases page.
+6. Amend draft release.
+7. Uncheck `Set as a pre-release`.
+8. Click `Update release`.

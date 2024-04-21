@@ -52,4 +52,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          gh release create ${{ inputs.version }} --generate-notes
+          gh release create ${{ inputs.version }} --generate-notes --draft
