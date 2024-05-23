@@ -1,0 +1,3 @@
+{
+  "extends": ["github>fchimpan/private-renovate-config"]
+}

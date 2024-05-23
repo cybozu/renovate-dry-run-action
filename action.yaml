@@ -25,6 +25,10 @@ inputs:
     description: 'if `true`, enclose the output log to the summary in a detail tag.'
     required: false
     default: "true"
+  token:
+    description: 'GitHub token'
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: "composite"
@@ -59,7 +63,7 @@ runs:
         #   ref: https://github.com/actions/checkout/issues/13
         RENOVATE_USERNAME: GitHub Action
         RENOVATE_GIT_AUTHOR: GitHub Action <action@github.com>
-        RENOVATE_TOKEN: ${{ github.token }}
+        RENOVATE_TOKEN: ${{ inputs.token }}
 
         # Set the log level for Renovate.
         #   ref: https://docs.renovatebot.com/examples/self-hosting/#about-the-log-level-numbers

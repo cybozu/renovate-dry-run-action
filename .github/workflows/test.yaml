@@ -62,3 +62,20 @@ jobs:
           config-file: renovate-test-data.json5
           log-level: info  # To reduce page occupancy.
           detail-summary: false
+
+  success-using-private-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          config-file: renovate-test-private-config.json5
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    
+  fail-using-private-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          config-file: renovate-test-private-config.json5
