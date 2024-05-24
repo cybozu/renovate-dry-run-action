@@ -29,6 +29,14 @@ inputs:
     description: 'GitHub token'
     required: false
     default: ${{ github.token }}
+  renovate-username:
+    description: 'Renovate username'
+    required: false
+    default: "GitHub Action"
+  renovate-git-author:
+    description: 'Renovate git author'
+    required: false
+    default: "GitHub Action <action@github.com>"
 
 runs:
   using: "composite"
@@ -61,8 +69,8 @@ runs:
         #   ref: https://zenn.dev/azrsh/articles/renovate-dry-run-ci#%E5%AE%9F%E8%A3%85-2
         # Use the `GitHub Action' user to make it explicit that the execution is through GitHub Actions.
         #   ref: https://github.com/actions/checkout/issues/13
-        RENOVATE_USERNAME: GitHub Action
-        RENOVATE_GIT_AUTHOR: GitHub Action <action@github.com>
+        RENOVATE_USERNAME: ${{ inputs.renovate-username }}
+        RENOVATE_GIT_AUTHOR: ${{ inputs.renovate-git-author }}
         RENOVATE_TOKEN: ${{ inputs.token }}
 
         # Set the log level for Renovate.
