@@ -37,6 +37,10 @@ inputs:
     description: 'Renovate git author'
     required: false
     default: "GitHub Action <action@github.com>"
+  install-lts-nodejs:
+    description: 'if `true`, install LTS Node.js. Because Renovate may require more than the default Node.js version of GitHub Actions.'
+    required: false
+    default: "true"
 
 runs:
   using: "composite"
@@ -53,6 +57,15 @@ runs:
         
         # Create a path to save a action summary.
         echo "summary=${{ runner.temp }}/summary.md" >> $GITHUB_OUTPUT
+
+    # Setup LTS Node.js
+    #   Because Renovate may require more than the default Node.js version of GitHub Actions.
+    #   see: https://github.com/cybozu/renovate-dry-run-action/issues/26
+    - name: Setup LTS Node.js
+      if: inputs.install-lts-nodejs == 'true'
+      uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
 
     - uses: actions/cache@v4
       if: inputs.cache == 'true'
