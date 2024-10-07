@@ -61,32 +61,32 @@ runs:
         # Output Renovate required node version
         echo "renovate-required-node-version=$(npm view renovate --json | jq '.engines.node')" >> $GITHUB_OUTPUT
 
-    - name: Install semver
-      if: inputs.install-nodejs == 'true'
-      shell: bash
-      run: npm install -g semver
+    # - name: Install semver
+    #   if: inputs.install-nodejs == 'true'
+    #   shell: bash
+    #   run: npm install -g semver
 
-    - name: Get Renovate required minimum node version
-      if: inputs.install-nodejs == 'true'
-      uses: actions/github-script@v7
-      id: renovate-required-minimum-node-version
-      env:
-        RENOVATE_REQUIRED_NODE_VERSION: ${{ steps.setup.outputs.renovate-required-node-version }}
-      with:
-        result-encoding: string
-        script: |
-          const semver = require('semver');
-          // get the minimum version of Node.js required by Renovate
-          // e.g. "semver.minVersion("^20.15.1").version" -> "20.15.1"
-          const minVersion = semver.minVersion(process.env.RENOVATE_REQUIRED_NODE_VERSION);
-          console.log(JSON.stringify(minVersion));
-          return minVersion.version;
+    # - name: Get Renovate required minimum node version
+    #   if: inputs.install-nodejs == 'true'
+    #   uses: actions/github-script@v7
+    #   id: renovate-required-minimum-node-version
+    #   env:
+    #     RENOVATE_REQUIRED_NODE_VERSION: ${{ steps.setup.outputs.renovate-required-node-version }}
+    #   with:
+    #     result-encoding: string
+    #     script: |
+    #       const semver = require('semver');
+    #       // get the minimum version of Node.js required by Renovate
+    #       // e.g. "semver.minVersion("^20.15.1").version" -> "20.15.1"
+    #       const minVersion = semver.minVersion(process.env.RENOVATE_REQUIRED_NODE_VERSION);
+    #       console.log(JSON.stringify(minVersion));
+    #       return minVersion.version;
 
     - name: Setup Node.js
       if: inputs.install-nodejs == 'true'
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ steps.renovate-required-minimum-node-version.outputs.result }}
+        node-version: ${{ steps.setup.outputs.renovate-required-node-version }}
 
     - uses: actions/cache@v4
       if: inputs.cache == 'true'
