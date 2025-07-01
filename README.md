@@ -13,6 +13,7 @@ jobs:
     permissions:
       contents: read  # required by actions/checkout
       pull-requests: read  # required by renovate, because renovate to read pull request.
+      issues: read  # required by renovate, because renovate to read issues.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
